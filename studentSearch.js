@@ -1,15 +1,6 @@
-// In a real application, this data would come from the server
-let students = [
-    {studentNo: '001', studentName: 'John Doe', email: 'john@example.com', phone: '123-456-7890', course: 'Java Programming'},
-    {studentNo: '002', studentName: 'Jane Smith', email: 'jane@example.com', phone: '987-654-3210', course: 'Web Development'},
-    {studentNo: '003', studentName: 'Alice Johnson', email: 'alice@example.com', phone: '555-555-5555', course: 'Database Management'},
-    // Add more sample students as needed
-];
-
 function searchStudents() {
     let searchTerm = document.getElementById('searchTerm').value.toLowerCase();
     
-    // Filter students based on the search term
     let results = students.filter(student => 
         student.studentNo.toLowerCase().includes(searchTerm) ||
         student.studentName.toLowerCase().includes(searchTerm) ||
@@ -19,17 +10,6 @@ function searchStudents() {
     );
 
     displaySearchResults(results);
-
-    // If using a backend API, you would use this instead:
-    /*
-    fetch('/api/students/search?term=' + encodeURIComponent(searchTerm))
-        .then(response => response.json())
-        .then(results => displaySearchResults(results))
-        .catch(error => {
-            console.error('Error:', error);
-            displaySearchResults([]);
-        });
-    */
 }
 
 function displaySearchResults(results) {
@@ -62,10 +42,6 @@ function displaySearchResults(results) {
             </table>
         `;
     }
-    resultsDiv.innerHTML += `
-        <button onclick="clearSearchResults()" class="mt-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-            Clear Results
-        </button>`;
 }
 
 function clearSearchResults() {
@@ -74,10 +50,4 @@ function clearSearchResults() {
 }
 
 // Event listener for real-time search
-document.getElementById('searchTerm').addEventListener('input', function() {
-    if (this.value.length >= 2) {  // Only search if 2 or more characters are entered
-        searchStudents();
-    } else if (this.value.length === 0) {
-        clearSearchResults();
-    }
-});
+document.getElementById('searchTerm').addEventListener('input', searchStudents);
