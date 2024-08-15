@@ -77,6 +77,8 @@
     </div>
 
     <script>
+        const API_BASE_URL = 'https://your-api-endpoint.com/api';
+
         function showSection(sectionId) {
             document.querySelectorAll('div[id]').forEach(div => div.classList.add('hidden'));
             document.getElementById(sectionId).classList.remove('hidden');
@@ -93,7 +95,7 @@
                 phone: document.getElementById('phone').value,
                 course: document.getElementById('course').value
             };
-            fetch('/api/students', {
+            fetch(`${API_BASE_URL}/students`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +116,7 @@
 
         function searchStudents() {
             let searchTerm = document.getElementById('searchTerm').value;
-            fetch(`/api/students/search?term=${encodeURIComponent(searchTerm)}`)
+            fetch(`${API_BASE_URL}/students/search?term=${encodeURIComponent(searchTerm)}`)
             .then(response => response.json())
             .then(students => displaySearchResults(students))
             .catch((error) => {
@@ -141,7 +143,7 @@
         }
 
         function generateReport() {
-            fetch('/api/students')
+            fetch(`${API_BASE_URL}/students`)
             .then(response => response.json())
             .then(students => {
                 let courseCounts = students.reduce((acc, student) => {
@@ -193,7 +195,7 @@
         }
 
         function displayAllStudents() {
-            fetch('/api/students')
+            fetch(`${API_BASE_URL}/students`)
             .then(response => response.json())
             .then(students => {
                 let tableBody = document.getElementById('allStudentsTable');
@@ -218,7 +220,7 @@
         }
 
         function editStudent(studentNo) {
-            fetch(`/api/students/${studentNo}`)
+            fetch(`${API_BASE_URL}/students/${studentNo}`)
             .then(response => response.json())
             .then(student => {
                 document.getElementById('studentNo').value = student.studentNo;
@@ -247,7 +249,7 @@
                 phone: document.getElementById('phone').value,
                 course: document.getElementById('course').value
             };
-            fetch(`/api/students/${studentNo}`, {
+            fetch(`${API_BASE_URL}/students/${studentNo}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -268,7 +270,7 @@
 
         function deleteStudent(studentNo) {
             if (confirm('Are you sure you want to delete this student?')) {
-                fetch(`/api/students/${studentNo}`, {
+                fetch(`${API_BASE_URL}/students/${studentNo}`, {
                     method: 'DELETE',
                 })
                 .then(response => response.json())
