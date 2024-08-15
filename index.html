@@ -35,11 +35,11 @@
             <div id="addStudent" class="hidden">
                 <h2 class="text-2xl font-bold mb-4">Add Student</h2>
                 <form id="addStudentForm" class="space-y-4">
-                    <input type="text" id="studentNo" placeholder="Student Number" class="w-full px-3 py-2 border rounded">
-                    <input type="text" id="studentName" placeholder="Student Name" class="w-full px-3 py-2 border rounded">
-                    <input type="email" id="email" placeholder="Email" class="w-full px-3 py-2 border rounded">
-                    <input type="tel" id="phone" placeholder="Phone" class="w-full px-3 py-2 border rounded">
-                    <input type="text" id="course" placeholder="Course" class="w-full px-3 py-2 border rounded">
+                    <input type="text" id="studentNo" placeholder="Student Number" class="w-full px-3 py-2 border rounded" required>
+                    <input type="text" id="studentName" placeholder="Student Name" class="w-full px-3 py-2 border rounded" required>
+                    <input type="email" id="email" placeholder="Email" class="w-full px-3 py-2 border rounded" required>
+                    <input type="tel" id="phone" placeholder="Phone" class="w-full px-3 py-2 border rounded" required>
+                    <input type="text" id="course" placeholder="Course" class="w-full px-3 py-2 border rounded" required>
                     <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Save Student</button>
                 </form>
             </div>
@@ -47,7 +47,6 @@
            <div id="searchStudents" class="hidden">
                <h2 class="text-2xl font-bold mb-4">Search Students</h2>
                <input type="text" id="searchTerm" placeholder="Enter search term" class="w-full px-3 py-2 border rounded mb-4">
-               <button onclick="searchStudents()" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">Search</button>
                <div id="searchResults" class="mt-4"></div>
            </div>
 
@@ -89,28 +88,13 @@
             document.getElementById('menu').classList.remove('hidden');
         }
 
-        document.getElementById('addStudentForm').onsubmit = function(e) {
-            e.preventDefault();
-            let student = {
-                studentNo: document.getElementById('studentNo').value,
-                studentName: document.getElementById('studentName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                course: document.getElementById('course').value
-            };
-            // Here you would typically send this data to your Java backend
-            alert('Student added successfully!');
-            this.reset();
-        };
-
         function generateReport() {
             // This function would typically fetch data from your Java backend
             // For now, we'll use dummy data
-            let courseCounts = {
-                'Java Programming': 10,
-                'Web Development': 15,
-                'Database Management': 8
-            };
+            let courseCounts = {};
+            students.forEach(student => {
+                courseCounts[student.course] = (courseCounts[student.course] || 0) + 1;
+            });
 
             let ctx = document.getElementById('reportChart').getContext('2d');
             new Chart(ctx, {
