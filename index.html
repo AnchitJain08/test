@@ -39,6 +39,9 @@
         #studentList th {
             background-color: #f2f2f2;
         }
+        #downloadCsv {
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +74,7 @@
             </thead>
             <tbody id="studentListBody"></tbody>
         </table>
+        <button id="downloadCsv" onclick="downloadCsv()">Download CSV</button>
     </div>
 
     <script>
@@ -117,6 +121,27 @@
                 document.getElementById('studentName').value = '';
             } else {
                 alert('Please enter both student number and name.');
+            }
+        }
+
+        function downloadCsv() {
+            const students = getAllStudents();
+            let csvContent = "Student No,Student Name\n";
+            
+            students.forEach(student => {
+                csvContent += `${student.studentNo},${student.studentName}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            if (link.download !== undefined) {
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "student_data.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
     </script>
