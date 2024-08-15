@@ -5,42 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Management System</title>
     <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+            --highlight-color: #e74c3c;
+        }
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
+            line-height: 1.6;
         }
-        h1 {
+        h1, h2 {
+            color: var(--primary-color);
             text-align: center;
         }
         .menu {
             display: flex;
-            justify-content: space-around;
+            justify-content: center;
             margin-bottom: 20px;
         }
         .menu button {
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 0 10px;
+            transition: background-color 0.3s ease;
         }
-        #addStudentForm {
-            display: none;
+        .menu button:hover {
+            background-color: var(--secondary-color);
+        }
+        #addStudentForm, #studentListContainer {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        input[type="text"], input[type="date"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button[type="submit"], #downloadCsv {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button[type="submit"]:hover, #downloadCsv:hover {
+            background-color: #27ae60;
         }
         #studentList {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 20px;
         }
         #studentList th, #studentList td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 12px;
             text-align: left;
         }
         #studentList th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #studentList tr:nth-child(even) {
             background-color: #f2f2f2;
         }
+        #studentList tr:hover {
+            background-color: #ddd;
+        }
         #downloadCsv {
-            margin-top: 20px;
+            display: block;
+            margin: 20px auto;
+        }
+        .error {
+            color: var(--highlight-color);
+            font-weight: bold;
         }
     </style>
 </head>
@@ -52,24 +110,45 @@
         <button onclick="showAllStudents()">Show All Students</button>
     </div>
     
-    <div id="addStudentForm">
+    <div id="addStudentForm" style="display: none;">
         <h2>Add Student</h2>
         <form onsubmit="addStudent(event)">
             <label for="studentNo">Student No:</label>
-            <input type="text" id="studentNo" required><br><br>
+            <input type="text" id="studentNo" required>
+            
             <label for="studentName">Student Name:</label>
-            <input type="text" id="studentName" required><br><br>
-            <button type="submit">Save</button>
+            <input type="text" id="studentName" required>
+            
+            <label for="dateOfBirth">Date of Birth:</label>
+            <input type="date" id="dateOfBirth" required>
+            
+            <label for="gender">Gender:</label>
+            <select id="gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+            </select>
+            
+            <label for="major">Major:</label>
+            <input type="text" id="major" required>
+            
+            <button type="submit">Save Student</button>
         </form>
     </div>
     
     <div id="studentListContainer" style="display: none;">
         <h2>All Students</h2>
+        <input type="text" id="searchInput" placeholder="Search by name or student number..." onkeyup="searchStudents()">
         <table id="studentList">
             <thead>
                 <tr>
                     <th>Student No</th>
                     <th>Student Name</th>
+                    <th>Date of Birth</th>
+                    <th>Gender</th>
+                    <th>Major</th>
+                    <th>Age</th>
                 </tr>
             </thead>
             <tbody id="studentListBody"></tbody>
@@ -78,10 +157,9 @@
     </div>
 
     <script>
-        // Simulating file operations using localStorage
-        function saveStudent(studentNo, studentName) {
+        function saveStudent(student) {
             let students = JSON.parse(localStorage.getItem('students')) || [];
-            students.push({ studentNo, studentName });
+            students.push(student);
             localStorage.setItem('students', JSON.stringify(students));
         }
 
@@ -97,15 +175,21 @@
         function showAllStudents() {
             document.getElementById('addStudentForm').style.display = 'none';
             document.getElementById('studentListContainer').style.display = 'block';
-            
+            displayStudents();
+        }
+
+        function displayStudents(studentsToShow = getAllStudents()) {
             const studentListBody = document.getElementById('studentListBody');
             studentListBody.innerHTML = '';
             
-            const students = getAllStudents();
-            students.forEach(student => {
+            studentsToShow.forEach(student => {
                 const row = studentListBody.insertRow();
                 row.insertCell(0).textContent = student.studentNo;
                 row.insertCell(1).textContent = student.studentName;
+                row.insertCell(2).textContent = student.dateOfBirth;
+                row.insertCell(3).textContent = student.gender;
+                row.insertCell(4).textContent = student.major;
+                row.insertCell(5).textContent = calculateAge(student.dateOfBirth);
             });
         }
 
@@ -113,23 +197,27 @@
             event.preventDefault();
             const studentNo = document.getElementById('studentNo').value;
             const studentName = document.getElementById('studentName').value;
+            const dateOfBirth = document.getElementById('dateOfBirth').value;
+            const gender = document.getElementById('gender').value;
+            const major = document.getElementById('major').value;
             
-            if (studentNo && studentName) {
-                saveStudent(studentNo, studentName);
+            if (studentNo && studentName && dateOfBirth && gender && major) {
+                const student = { studentNo, studentName, dateOfBirth, gender, major };
+                saveStudent(student);
                 alert('Student information saved successfully!');
-                document.getElementById('studentNo').value = '';
-                document.getElementById('studentName').value = '';
+                event.target.reset();
             } else {
-                alert('Please enter both student number and name.');
+                alert('Please fill in all fields.');
             }
         }
 
         function downloadCsv() {
             const students = getAllStudents();
-            let csvContent = "Student No,Student Name\n";
+            let csvContent = "Student No,Student Name,Date of Birth,Gender,Major,Age\n";
             
             students.forEach(student => {
-                csvContent += `${student.studentNo},${student.studentName}\n`;
+                const age = calculateAge(student.dateOfBirth);
+                csvContent += `${student.studentNo},${student.studentName},${student.dateOfBirth},${student.gender},${student.major},${age}\n`;
             });
             
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -143,6 +231,27 @@
                 link.click();
                 document.body.removeChild(link);
             }
+        }
+
+        function calculateAge(dateOfBirth) {
+            const today = new Date();
+            const birthDate = new Date(dateOfBirth);
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const monthDiff = today.getMonth() - birthDate.getMonth();
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            return age;
+        }
+
+        function searchStudents() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const allStudents = getAllStudents();
+            const filteredStudents = allStudents.filter(student => 
+                student.studentNo.toLowerCase().includes(searchTerm) ||
+                student.studentName.toLowerCase().includes(searchTerm)
+            );
+            displayStudents(filteredStudents);
         }
     </script>
 </body>
