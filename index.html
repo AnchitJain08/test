@@ -3,130 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Java-based Student Management System</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <title>Student Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .menu {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .menu button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #addStudentForm {
+            display: none;
+        }
+        #studentList {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #studentList th, #studentList td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        #studentList th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="container mx-auto px-4 py-8">
-        <h1 class="text-4xl font-bold text-center text-blue-600 mb-4">Java-based Student Management System</h1>
-        
-        <div class="text-center mb-4">
-            <button onclick="showHome()" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-all shadow-hover">
-                Home
-            </button>
-        </div>
-
-        <div class="bg-white rounded-lg shadow-md p-6">
-            <div id="menu" class="flex flex-wrap justify-center space-x-4 mb-6">
-                <button onclick="showSection('addStudent')" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-all shadow-hover mb-2">
-                    Add Student
-                </button>
-                <button onclick="showSection('searchStudents')" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-all shadow-hover mb-2">
-                    Search Students
-                </button>
-                <button onclick="showSection('generateReport')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-all shadow-hover mb-2">
-                    Generate Report
-                </button>
-                <button onclick="showSection('allStudents')" class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded transition-all shadow-hover mb-2">
-                    All Students
-                </button>
-            </div>
-            <div id="addStudent" class="hidden">
-                <h2 class="text-2xl font-bold mb-4">Add Student</h2>
-                <form id="addStudentForm" class="space-y-4">
-                    <input type="text" id="studentNo" placeholder="Student Number" class="w-full px-3 py-2 border rounded" required>
-                    <input type="text" id="studentName" placeholder="Student Name" class="w-full px-3 py-2 border rounded" required>
-                    <input type="email" id="email" placeholder="Email" class="w-full px-3 py-2 border rounded" required>
-                    <input type="tel" id="phone" placeholder="Phone" class="w-full px-3 py-2 border rounded" required>
-                    <input type="text" id="course" placeholder="Course" class="w-full px-3 py-2 border rounded" required>
-                    <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded">Save Student</button>
-                </form>
-            </div>
-
-           <div id="searchStudents" class="hidden">
-               <h2 class="text-2xl font-bold mb-4">Search Students</h2>
-               <input type="text" id="searchTerm" placeholder="Enter search term" class="w-full px-3 py-2 border rounded mb-4">
-               <div id="searchResults" class="mt-4"></div>
-           </div>
-
-            <div id="generateReport" class="hidden">
-                <h2 class="text-2xl font-bold mb-4">Course Enrollment Report</h2>
-                <canvas id="reportChart"></canvas>
-            </div>
-
-            <div id="allStudents" class="hidden">
-                <h2 class="text-2xl font-bold mb-4">All Students</h2>
-                <table id="studentsTable" class="w-full border-collapse border">
-                    <thead>
-                        <tr>
-                            <th class="border p-2">Student No</th>
-                            <th class="border p-2">Name</th>
-                            <th class="border p-2">Email</th>
-                            <th class="border p-2">Phone</th>
-                            <th class="border p-2">Course</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentsTableBody"></tbody>
-                </table>
-            </div>
-        </div>
+<body>
+    <h1>Student Management System</h1>
+    
+    <div class="menu">
+        <button onclick="showAddStudent()">Add Student</button>
+        <button onclick="showAllStudents()">Show All Students</button>
+    </div>
+    
+    <div id="addStudentForm">
+        <h2>Add Student</h2>
+        <form onsubmit="addStudent(event)">
+            <label for="studentNo">Student No:</label>
+            <input type="text" id="studentNo" required><br><br>
+            <label for="studentName">Student Name:</label>
+            <input type="text" id="studentName" required><br><br>
+            <button type="submit">Save</button>
+        </form>
+    </div>
+    
+    <div id="studentListContainer" style="display: none;">
+        <h2>All Students</h2>
+        <table id="studentList">
+            <thead>
+                <tr>
+                    <th>Student No</th>
+                    <th>Student Name</th>
+                </tr>
+            </thead>
+            <tbody id="studentListBody"></tbody>
+        </table>
     </div>
 
-    <script src="studentSearch.js"></script>
-    <script src="allStudents.js"></script>
     <script>
-        function showSection(sectionId) {
-            document.querySelectorAll('div[id]').forEach(div => div.classList.add('hidden'));
-            document.getElementById(sectionId).classList.remove('hidden');
-            if (sectionId === 'generateReport') generateReport();
-            if (sectionId === 'allStudents') displayAllStudents();
+        // Simulating file operations using localStorage
+        function saveStudent(studentNo, studentName) {
+            let students = JSON.parse(localStorage.getItem('students')) || [];
+            students.push({ studentNo, studentName });
+            localStorage.setItem('students', JSON.stringify(students));
         }
 
-        function showHome() {
-            document.querySelectorAll('div[id]').forEach(div => div.classList.add('hidden'));
-            document.getElementById('menu').classList.remove('hidden');
+        function getAllStudents() {
+            return JSON.parse(localStorage.getItem('students')) || [];
         }
 
-        function generateReport() {
-            // This function would typically fetch data from your Java backend
-            // For now, we'll use dummy data
-            let courseCounts = {};
+        function showAddStudent() {
+            document.getElementById('addStudentForm').style.display = 'block';
+            document.getElementById('studentListContainer').style.display = 'none';
+        }
+
+        function showAllStudents() {
+            document.getElementById('addStudentForm').style.display = 'none';
+            document.getElementById('studentListContainer').style.display = 'block';
+            
+            const studentListBody = document.getElementById('studentListBody');
+            studentListBody.innerHTML = '';
+            
+            const students = getAllStudents();
             students.forEach(student => {
-                courseCounts[student.course] = (courseCounts[student.course] || 0) + 1;
+                const row = studentListBody.insertRow();
+                row.insertCell(0).textContent = student.studentNo;
+                row.insertCell(1).textContent = student.studentName;
             });
+        }
 
-            let ctx = document.getElementById('reportChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(courseCounts),
-                    datasets: [{
-                        label: 'Students per Course',
-                        data: Object.values(courseCounts),
-                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Number of Students'
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Courses'
-                            }
-                        }
-                    }
-                }
-            });
+        function addStudent(event) {
+            event.preventDefault();
+            const studentNo = document.getElementById('studentNo').value;
+            const studentName = document.getElementById('studentName').value;
+            
+            if (studentNo && studentName) {
+                saveStudent(studentNo, studentName);
+                alert('Student information saved successfully!');
+                document.getElementById('studentNo').value = '';
+                document.getElementById('studentName').value = '';
+            } else {
+                alert('Please enter both student number and name.');
+            }
         }
     </script>
 </body>
