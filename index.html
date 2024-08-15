@@ -11,6 +11,7 @@
             --background-color: #ecf0f1;
             --text-color: #34495e;
             --highlight-color: #e74c3c;
+            --warning-color: #f39c12;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -59,7 +60,7 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        button[type="submit"], #downloadCsv {
+        button[type="submit"], #downloadCsv, #deleteAll {
             background-color: var(--secondary-color);
             color: white;
             padding: 10px 20px;
@@ -71,6 +72,12 @@
         }
         button[type="submit"]:hover, #downloadCsv:hover {
             background-color: #27ae60;
+        }
+        #deleteAll {
+            background-color: var(--highlight-color);
+        }
+        #deleteAll:hover {
+            background-color: #c0392b;
         }
         #studentList {
             width: 100%;
@@ -92,9 +99,26 @@
         #studentList tr:hover {
             background-color: #ddd;
         }
-        #downloadCsv {
-            display: block;
-            margin: 20px auto;
+        .action-buttons {
+            display: flex;
+            justify-content: space-around;
+        }
+        .action-buttons button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s ease;
+        }
+        .action-buttons .edit:hover {
+            color: var(--warning-color);
+        }
+        .action-buttons .delete:hover {
+            color: var(--highlight-color);
+        }
+        #downloadCsv, #deleteAll {
+            display: inline-block;
+            margin: 20px 10px;
         }
         .error {
             color: var(--highlight-color);
@@ -149,11 +173,13 @@
                     <th>Gender</th>
                     <th>Major</th>
                     <th>Age</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody id="studentListBody"></tbody>
         </table>
         <button id="downloadCsv" onclick="downloadCsv()">Download CSV</button>
+        <button id="deleteAll" onclick="deleteAllStudents()">Delete All</button>
     </div>
 
     <script>
@@ -182,7 +208,7 @@
             const studentListBody = document.getElementById('studentListBody');
             studentListBody.innerHTML = '';
             
-            studentsToShow.forEach(student => {
+            studentsToShow.forEach((student, index) => {
                 const row = studentListBody.insertRow();
                 row.insertCell(0).textContent = student.studentNo;
                 row.insertCell(1).textContent = student.studentName;
@@ -190,6 +216,14 @@
                 row.insertCell(3).textContent = student.gender;
                 row.insertCell(4).textContent = student.major;
                 row.insertCell(5).textContent = calculateAge(student.dateOfBirth);
+                
+                const actionsCell = row.insertCell(6);
+                actionsCell.innerHTML = `
+                    <div class="action-buttons">
+                        <button class="edit" onclick="editStudent(${index})">✏️</button>
+                        <button class="delete" onclick="deleteStudent(${index})">🗑️</button>
+                    </div>
+                `;
             });
         }
 
@@ -252,6 +286,40 @@
                 student.studentName.toLowerCase().includes(searchTerm)
             );
             displayStudents(filteredStudents);
+        }
+
+        function editStudent(index) {
+            const students = getAllStudents();
+            const student = students[index];
+            
+            document.getElementById('studentNo').value = student.studentNo;
+            document.getElementById('studentName').value = student.studentName;
+            document.getElementById('dateOfBirth').value = student.dateOfBirth;
+            document.getElementById('gender').value = student.gender;
+            document.getElementById('major').value = student.major;
+            
+            // Remove the edited student from the array
+            students.splice(index, 1);
+            localStorage.setItem('students', JSON.stringify(students));
+            
+            // Show the add student form for editing
+            showAddStudent();
+        }
+
+        function deleteStudent(index) {
+            if (confirm('Are you sure you want to delete this student?')) {
+                const students = getAllStudents();
+                students.splice(index, 1);
+                localStorage.setItem('students', JSON.stringify(students));
+                displayStudents();
+            }
+        }
+
+        function deleteAllStudents() {
+            if (confirm('Are you sure you want to delete all students? This action cannot be undone.')) {
+                localStorage.removeItem('students');
+                displayStudents();
+            }
         }
     </script>
 </body>
