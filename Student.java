@@ -23,10 +23,12 @@ public class Student {
              BufferedWriter bw = new BufferedWriter(fw);
              PrintWriter out = new PrintWriter(bw)) {
             // Check if file is empty and add header if it is
-            File file = new File(FILE_NAME);
-            if (file.length() == 0) {
+           File file = new File(FILE_NAME);
+            boolean fileExists = file.exists();
+            if (!fileExists || file.length() == 0) {
                 out.println("Student No,Name,Email,Phone,Course");
             }
+
             out.println(student.studentNo + "," + student.studentName + "," + student.email + "," + student.phone + "," + student.course);
             return true;
         } catch (IOException e) {
@@ -35,26 +37,28 @@ public class Student {
         }
     }
 
+    import org.apache.commons.csv.CSVFormat;
+    import org.apache.commons.csv.CSVRecord;
+    
     public static List<Student> getAllStudents() {
         List<Student> students = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
-            String line;
-            boolean firstLine = true;
-            while ((line = br.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false;
-                    continue; // Skip the header line
-                }
-                String[] data = line.split(",");
-                if (data.length == 5) {
-                    students.add(new Student(data[0], data[1], data[2], data[3], data[4]));
-                }
+        try (Reader reader = new FileReader(FILE_NAME)) {
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.withHeader().withFirstRecordAsHeader().parse(reader);
+            for (CSVRecord record : records) {
+                students.add(new Student(
+                    record.get("Student No"),
+                    record.get("Name"),
+                    record.get("Email"),
+                    record.get("Phone"),
+                    record.get("Course")
+                ));
             }
         } catch (IOException e) {
             System.out.println("Error reading students: " + e.getMessage());
         }
         return students;
     }
+
 
     public static List<Student> searchStudents(String searchTerm) {
         List<Student> allStudents = getAllStudents();
