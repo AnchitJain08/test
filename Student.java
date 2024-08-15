@@ -22,6 +22,11 @@ public class Student {
         try (FileWriter fw = new FileWriter(FILE_NAME, true);
              BufferedWriter bw = new BufferedWriter(fw);
              PrintWriter out = new PrintWriter(bw)) {
+            // Check if file is empty and add header if it is
+            File file = new File(FILE_NAME);
+            if (file.length() == 0) {
+                out.println("Student No,Name,Email,Phone,Course");
+            }
             out.println(student.studentNo + "," + student.studentName + "," + student.email + "," + student.phone + "," + student.course);
             return true;
         } catch (IOException e) {
@@ -34,7 +39,12 @@ public class Student {
         List<Student> students = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(FILE_NAME))) {
             String line;
+            boolean firstLine = true;
             while ((line = br.readLine()) != null) {
+                if (firstLine) {
+                    firstLine = false;
+                    continue; // Skip the header line
+                }
                 String[] data = line.split(",");
                 if (data.length == 5) {
                     students.add(new Student(data[0], data[1], data[2], data[3], data[4]));
