@@ -354,7 +354,18 @@
 <body>
     <div id="root"></div>
     <script type="text/babel">
-        // Your React component code goes here
+        // Shared color function
+        const getCourseColor = (code) => {
+            if (code.includes('CSE3004')) return '#FFB3BA'; // Light Pink
+            if (code.includes('CSE2004')) return '#BAFFC9'; // Light Mint
+            if (code.includes('CSE2003')) return '#BAE1FF'; // Light Sky Blue
+            if (code.includes('CSE3005')) return '#FFFFBA'; // Light Yellow
+            if (code.includes('ECE3004')) return '#FFD9BA'; // Light Peach
+            if (code.includes('HUM0001')) return '#E0BBE4'; // Light Lavender
+            if (code.includes('MAT2003')) return '#D4F0F0'; // Light Cyan
+            return 'white';
+        };
+
         const CourseTable = () => (
           <div className="table-container">
             <table className="w-full border-collapse mb-8">
@@ -385,7 +396,7 @@
                   { code: 'HUM0001', title: 'Ethics And Values', type: 'Lecture and Tutorial Hours Only', credit: '2.0', category: 'Open Elective', option: 'Regular', classNo: 'BL202425D400555', slot: 'E21', venue: 'CR-005', faculty: 'RAJENDRA MAHANANDIA - VITBS', status: 'Registered and Approved' },
                   { code: 'MAT2003', title: 'Applied Numerical Method', type: 'Lecture and Tutorial Hours Only', credit: '3.0', category: 'University Elective - Natural Science Electives (UENSE)', option: 'Re-registration', classNo: 'BL202425D400026', slot: 'E14+F14', venue: 'CR-013', faculty: 'MAMTA AGRAWAL - SASL', status: 'Registered and Invoice Not Generated' },
                 ].map((course, index) => (
-                  <tr key={index} className={index % 2 === 0 ? 'bg-gray-100' : ''}>
+                  <tr key={index} style={{backgroundColor: getCourseColor(course.code)}}>
                     <td className="border p-2">General 2020 /2022</td>
                     <td className="border p-2">{course.code}</td>
                     <td className="border p-2">{course.title}</td>
@@ -419,17 +430,6 @@
             ['D13', 'E13', 'F13', 'Lunch', 'D23', 'D14', 'D24', 'E23']
           ];
 
-          const getCellColor = (text) => {
-            if (text.includes('CSE3004')) return '#FFB3BA'; // Light Pink
-            if (text.includes('CSE2004')) return '#BAFFC9'; // Light Mint
-            if (text.includes('CSE2003')) return '#BAE1FF'; // Light Sky Blue
-            if (text.includes('CSE3005')) return '#FFFFBA'; // Light Yellow
-            if (text.includes('ECE3004')) return '#FFD9BA'; // Light Peach
-            if (text.includes('HUM0001')) return '#E0BBE4'; // Light Lavender
-            if (text.includes('MAT2003')) return '#D4F0F0'; // Light Cyan
-            return 'white';
-          };
-
           return (
             <div className="table-container">
               <table className="w-full border-collapse">
@@ -449,7 +449,7 @@
                     <tr key={day}>
                       <td className="border p-2 font-bold">{day}</td>
                       {schedule[dayIndex].map((slot, slotIndex) => (
-                        <td key={slotIndex} className="border p-2 text-center" style={{backgroundColor: getCellColor(slot)}}>
+                        <td key={slotIndex} className="border p-2 text-center" style={{backgroundColor: getCourseColor(slot)}}>
                           {slot}
                         </td>
                       ))}
@@ -457,8 +457,8 @@
                   ))}
                 </tbody>
               </table>
-              <p className="mt-4 text-sm">Registered Slots / Hours are highlighted with green color.</p>
-              <p className="text-sm">If there is no green highlight it indicates that there are no Registered List Slots / Hours.</p>
+              <p className="mt-4 text-sm">Course slots are highlighted with their respective colors.</p>
+              <p className="text-sm">White cells indicate unscheduled time slots.</p>
             </div>
           );
         };
